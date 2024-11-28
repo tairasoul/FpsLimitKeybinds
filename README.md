@@ -12,6 +12,8 @@ non-modifiers are parsed directly into a [KeyCode](https://docs.unity3d.com/Scri
 
 "default_fps" is your default capped fps, applied until you switch to a different limit.
 
+defaults to "unlimited"
+
 example config:
 
 ```toml
