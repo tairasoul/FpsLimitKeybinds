@@ -16,6 +16,7 @@ class tomlKeybinds
 {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 	public string[] keybinds {get; set;}
+	public string default_fps {get; set;}
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
 }
 
@@ -48,7 +49,7 @@ struct ParsedBind
 	public KeyCode key;
 }
 
-[BepInPlugin("tairasoul.vaproxy.fpskeybinds", "fps-keybinds", "1.0.0")]
+[BepInPlugin("tairasoul.vaproxy.fpskeybinds", "fps-keybinds", "1.0.1")]
 public class Plugin : BaseUnityPlugin 
 {
 	internal static int currentFps = 60;
@@ -94,10 +95,14 @@ public class Plugin : BaseUnityPlugin
 	{
 		Log = Logger;
 		string configPath = Path.Combine(Paths.ConfigPath, "keybinds.toml");
-		string preset = "keybinds = []";
+		string preset = "default_fps=\"unlimited\"\nkeybinds = []";
 		if (!File.Exists(configPath)) 
 			File.WriteAllText(configPath, preset);	
 		tomlKeybinds table = Toml.ToModel<tomlKeybinds>(File.ReadAllLines(configPath).Join(delimiter:"\n"));
+		if (table.default_fps == "unlimited") 
+			currentFps = -1;
+		else if (!int.TryParse(table.default_fps, out currentFps)) 
+			Logger.LogError($"Failed to parse fps string {table.default_fps} into an integer.");
 		ParseKeybinds(table);
 		StartCoroutine(UpdateCoroutine());
 	}
